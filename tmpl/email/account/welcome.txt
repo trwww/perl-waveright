@@ -1,0 +1,12 @@
+Greetings [% c.stash.person.name %],
+
+Welcome to [% c.config.name %]!
+
+You may now log in to [% c.config.domain %] and use your account.
+
+You must confirm your email within 7 days or your account will be
+deactivated. Click the link or copy/paste it to your browser's address bar.
+
+https://[% c.config.domain %]/account/verify/[% c.stash.verification.guid.as_string %]
+
+[% PROCESS email/debug.txt -%]

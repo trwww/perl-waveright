@@ -1,0 +1,5 @@
+[% USE Dumper -%]
+[% IF c.config.item('View::Email').manager.debug -%]
+GOING TO DEBUG:
+[%   Dumper.dump( c.stash.item('debug.email') ) %]
+[% END -%]

@@ -1,0 +1,5 @@
+Thank you for your communication. We will reply as soon as possible.
+
+----
+
+[% c.stash.message %]
