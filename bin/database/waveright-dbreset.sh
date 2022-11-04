@@ -1,9 +1,11 @@
 #!/bin/bash
 
-DBNAME=$1
-DBUSER=$2
-DBPASS=$3
+DBHOST=$1
+DBPORT=$2
+DBNAME=$3
+DBUSER=$4
+DBPASS=$5
 
-mysqladmin --user=$2 --password="$DBPASS" drop   $DBNAME
-mysqladmin --user=$2 --password="$DBPASS" create $DBNAME
-mysql      --user=$2 --password="$DBPASS"        $DBNAME < WaveRight/sql/init.sql
+mysqladmin --host=$DBHOST --port=$DBPORT --user=$DBUSER --password="$DBPASS" drop -f $DBNAME
+mysqladmin --host=$DBHOST --port=$DBPORT --user=$DBUSER --password="$DBPASS" create  $DBNAME
+mysql      --host=$DBHOST --port=$DBPORT --user=$DBUSER --password="$DBPASS"         $DBNAME < waveright/core/sql/init.sql
