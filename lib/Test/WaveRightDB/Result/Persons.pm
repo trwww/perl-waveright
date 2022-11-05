@@ -37,8 +37,6 @@ sub setup : Test(setup => +2) {
   # http://search.cpan.org/~ribasushi/DBIx-Class-0.08109/lib/DBIx/Class/Manual/FAQ.pod#Inserting_and_updating_data
   isa_ok(
     $self->{person} = $model->create({
-      # comment this out and ->discard_changes will die at trying to inflate an invalid date:
-      create_date => undef,
       email       => 'foo@bar.com',
       pass        => 'foobar',
     }), $name => '$person'
@@ -48,28 +46,8 @@ sub setup : Test(setup => +2) {
 
 =head2 dates
 
-Test the automatic features of timestamps in MySQL
-
-The most logical thing would be to have:
-
-    `create_date` timestamp NOT NULL default CURRENT_TIMESTAMP,
-    `update_date` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
-
-This would automatically set the record's I<create_date> and make the
-I<update_date> C<NULL> on create. Then updates would leave the I<create_date>
-as-is and atomatically set the I<update_date> on subsequent updates.
-
-But MySQL can't have two timestamps with C<CURRENT_TIMESTAMP> in the definition!
-
-So we are using this:
-
-    `create_date` timestamp NOT NULL default '0000-00-00 00:00:00',
-    `update_date` timestamp NULL ON UPDATE CURRENT_TIMESTAMP,
-
-This does everything described above B<EXCEPT> that you have to set
-I<create_date> to C<NULL> when C<INSERT>ing a record in the database.
-
-The code in this method excercises the behavior described above.
+don't have to mention create_date in the ->create calls anymore because mysql 8
+handles it for you
 
 =cut
 
