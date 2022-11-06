@@ -274,7 +274,7 @@ sub database_deploy_commands {
   my $commands  = $self->{app}{database}{commands}{setup};
   my $mysqlopts = $self->database_test_config->{mysqlopts};
 
-  foreach my $file (qw( ../WaveRight/sql/init.sql ../sql/init.sql )) {
+  foreach my $file (qw( ../waveright/core/sql/init.sql ../sql/init.sql )) {
     push @$commands => [
          mysql
       => @$mysqlopts
