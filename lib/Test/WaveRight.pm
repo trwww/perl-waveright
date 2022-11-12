@@ -236,6 +236,7 @@ sub database_setup_commands {
 
   $self->database_create_commands;
   $self->database_deploy_commands;
+  $self->database_dump_commands;
 }
 
 =head2 database_create_commands
@@ -312,6 +313,42 @@ sub database_teardown_commands {
     => drop
     => $database
   ];
+}
+
+=head2 database_dump_commands
+
+=cut
+
+sub database_dump_commands {
+  my $self = shift;
+  my $c    = $self->{c};
+
+  my $database  = $self->{app}{database}{name};
+  my $setup     = $self->{app}{database}{commands}{setup};
+  my $teardown  = $self->{app}{database}{commands}{teardown};
+  my $mysqlopts = $self->database_test_config->{mysqlopts};
+
+  my $date = `date '+%Y-%m-%dT%H-%M'`;
+  chomp $date;
+
+  my $dumps = {
+    setup    => $setup,
+    teardown => $teardown,
+  };
+
+  while ( my($dump, $commands) = each %$dumps ) {
+    my $result_file = $c->path_to("../sql/$date.$dump.sql");
+
+    push @$commands => [
+      mysqldump
+      => @$mysqlopts
+      => '--skip-opt'
+      => '--no-tablespaces'
+      => '--dump-date=FALSE'
+      => "--result-file=$result_file"
+      => $database
+    ];
+  }
 }
 
 =head2 model
@@ -434,6 +471,7 @@ this deletes this test's database
 
 can delete left over databases with:
 
+    bin/database/drop-test-dbs
     mysql -uangulysttest --password='...' --batch -e 'SHOW DATABASES' | grep ^angulyst_ | xargs -I{} mysqladmin -uangulysttest --password='...' --force drop {}
 
 =cut
