@@ -145,6 +145,7 @@ sub setup : Tests(setup) {
     commands => {
       setup    => [],
       teardown => [],
+      dump     => [],
     }
   };
 
@@ -317,6 +318,15 @@ sub database_teardown_commands {
 
 =head2 database_dump_commands
 
+This just fills out $self->{app}{database}{dump}
+
+call C<$self->database_dump('NAME')> to arbitarily dump the db during a test
+
+for a test named 'SOME_TEST' in Test::MyAppDB::Result::MyResult invoked by
+t/MyAppDB/Result/MyResult.t, it will put a mysqldump of the database in:
+
+    MyApp/t/MyAppDB/Result/MyResult/YYYY-MM-DDTHH-MM-SS/SOME_TEST/NAME.sql
+
 =cut
 
 sub database_dump_commands {
@@ -324,30 +334,56 @@ sub database_dump_commands {
   my $c    = $self->{c};
 
   my $database  = $self->{app}{database}{name};
-  my $setup     = $self->{app}{database}{commands}{setup};
-  my $teardown  = $self->{app}{database}{commands}{teardown};
+  my $commands  = $self->{app}{database}{commands}{dump};
   my $mysqlopts = $self->database_test_config->{mysqlopts};
 
-  my $date = `date '+%Y-%m-%dT%H-%M'`;
-  chomp $date;
+  my $now  = DateTime->now;
+  my $date = $now->mdy('-') . 'T' . $now->hms('-');
 
-  my $dumps = {
-    setup    => $setup,
-    teardown => $teardown,
-  };
+  my $script_name = $0;
+  $script_name =~ s|^.+?t/||;
+  $script_name =~ s|\.t$||;
 
-  while ( my($dump, $commands) = each %$dumps ) {
-    my $result_file = $c->path_to("../sql/$date.$dump.sql");
+  my $current_method = $self->current_method;
 
-    push @$commands => [
-      mysqldump
-      => @$mysqlopts
-      => '--skip-opt'
-      => '--no-tablespaces'
-      => '--dump-date=FALSE'
-      => "--result-file=$result_file"
-      => $database
-    ];
+  my $dir = sprintf 't/%s/%s/%s', $script_name, $date, $current_method;
+  $dir    = $c->path_to($dir);
+  File::Path::make_path( $dir ) or die "can't create output dir: $!";
+
+  my $result_file = $dir . '/%s.sql';
+
+  push @$commands => [
+    mysqldump
+    => @$mysqlopts
+    => '--skip-opt'
+    => '--no-create-info'
+    => '--no-tablespaces'
+    => '--dump-date=FALSE'
+    => "--result-file=$result_file"
+    => $database
+  ];
+}
+
+=head2 database_dump
+
+does a mysqldump of the database to:
+
+    MyApp/t/MyAppDB/Result/MyResult/YYYY-MM-DDTHH-MM-SS/SOME_TEST/NAME.sql
+
+=cut
+
+sub database_dump {
+  my($self, $filename) = @_;
+
+  my $database  = $self->{app}{database}{name};
+  my $template  = $self->{app}{database}{commands}{dump};
+  my $mysqlopts = $self->database_test_config->{mysqlopts};
+  my $commands  = Clone::clone( $template );
+
+  $commands->[-1][-2] = sprintf $commands->[-1][-2], $filename;
+
+  foreach my $command ( @$commands ) {
+    $self->ipc_runner( $command );
   }
 }
 
