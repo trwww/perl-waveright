@@ -333,6 +333,8 @@ sub database_dump_commands {
   my $self = shift;
   my $c    = $self->{c};
 
+  return unless $ENV{WR_DATABASE_DUMPS};
+
   my $database  = $self->{app}{database}{name};
   my $commands  = $self->{app}{database}{commands}{dump};
   my $mysqlopts = $self->database_test_config->{mysqlopts};
@@ -378,7 +380,10 @@ sub database_dump {
   my $database  = $self->{app}{database}{name};
   my $template  = $self->{app}{database}{commands}{dump};
   my $mysqlopts = $self->database_test_config->{mysqlopts};
-  my $commands  = Clone::clone( $template );
+
+  return unless $template;
+
+  my $commands = Clone::clone( $template );
 
   $commands->[-1][-2] = sprintf $commands->[-1][-2], $filename;
 
