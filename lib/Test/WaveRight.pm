@@ -276,7 +276,9 @@ sub database_deploy_commands {
   my $commands  = $self->{app}{database}{commands}{setup};
   my $mysqlopts = $self->database_test_config->{mysqlopts};
 
-  foreach my $file (qw( ../waveright/core/sql/init.sql ../sql/init.sql )) {
+  my @sql_files = $self->database_deploy_commands_sql_files;
+
+  foreach my $file ( @sql_files ) {
     push @$commands => [
          mysql
       => @$mysqlopts
@@ -285,6 +287,14 @@ sub database_deploy_commands {
       => $database
     ];
   }
+}
+
+sub database_deploy_commands_sql_files {
+  my $self = shift;
+
+  my @files = qw( ../waveright/core/sql/init.sql ../sql/init.sql );
+
+  return @files;
 }
 
 =head2 database_populate_commands
@@ -483,7 +493,7 @@ sub log_in {
 
   diag explain $response->json if $ENV{DIAG};
 
-  my $expect = $self->expected_login_response;
+  my $expect = $self->expected_login_response( $credentials );
   is_deeply( $response->json, $expect, 'login complete' );
 
   return $response;
