@@ -43,7 +43,7 @@ sub administrator : Test(8) {
   my $self = shift;
   my $c    = $self->{c};
 
-  isa_ok(my $user = $c->find_user({ id => 10 }) => 'Catalyst::Authentication::Store::DBIx::Class::User' => '$user' );
+  isa_ok(my $user = $c->find_user({ id => 5 }) => 'Catalyst::Authentication::Store::DBIx::Class::User' => '$user' );
   $c->set_authenticated( $user );
 
   is( $c->check_user_roles('administrator')->{granted}            => 1     , 'user is an administrator' );
@@ -65,7 +65,7 @@ sub manager : Test(8) {
   my $self = shift;
   my $c    = $self->{c};
 
-  isa_ok(my $user = $c->find_user({ id => 900 }) => 'Catalyst::Authentication::Store::DBIx::Class::User' => '$user' );
+  isa_ok(my $user = $c->find_user({ id => 6 }) => 'Catalyst::Authentication::Store::DBIx::Class::User' => '$user' );
   $c->set_authenticated( $user );
 
   is( $c->check_user_roles('administrator')->{granted}            => undef , 'user is not an administrator' );
