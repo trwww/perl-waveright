@@ -2,12 +2,13 @@ use warnings;
 use strict;
 
 package WaveRightDB::GroupsComponent;
+use Log::Contextual qw( :log );
 
 sub grouped_update {
-  my( $self, $c, $person, $data ) = @_;
+  my( $self, undef, $person, $data ) = @_;
 
   $self->result_source->schema->txn_do( \&_txn_grouped_update,
-    $self, $c, $person, $data
+    $self, $person, $data
   );
 
   return 1;
@@ -15,13 +16,13 @@ sub grouped_update {
 
 use Clone ();
 sub _txn_grouped_update {
-  my( $self, $c, $person, $input ) = @_;
+  my( $self, $person, $input ) = @_;
   my $data = Clone::clone( $input );
 
   # never let an id field get to ->update calls
   if ( exists $data->{id} ) {
     my $id = delete $data->{id};
-    $c->log->warn( sprintf 'grouped_update was passed an id field: [%s]', $id );
+    log_warn { sprintf 'grouped_update was passed an id field: [%s]', $_[0] } $id;
   }
 
   my $groups_source  = $self->result_source->schema->source( 'Groups' );
