@@ -204,10 +204,6 @@ sub database_schema {
   my $user = $conf->{user};
   my $pass = $conf->{pass};
 
-  my $CONN_INFO = [ $dsn, $user, $pass ];
-  my $STASH_KEY = 'WAVERIGHT_PER_TEST_SCHEMA_CONNECTION_INFO';
-  local $c->stash->{$STASH_KEY} = $CONN_INFO;
-
 #  diag("database: $database");
   my $schema = $c->model( $self->model )->schema;
   $schema->connection(  $dsn, $user, $pass, {}, $conf->{extra} );
