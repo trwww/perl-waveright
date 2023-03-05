@@ -43,6 +43,14 @@ sub build_per_context_instance {
     my ( $self, $ctx ) = @_;
     return $self unless blessed($ctx);
 
+    my $STASH_KEY = 'WAVERIGHT_PER_TEST_SCHEMA_CONNECTION_INFO';
+    if ( my $conn_info = delete $ctx->stash->{ $STASH_KEY } ) {
+      my $dbi_info = $self->storage->{'_dbi_connect_info'};
+      $dbi_info->[0] = $conn_info->[0];
+      $dbi_info->[1] = $conn_info->[1];
+      $dbi_info->[2] = $conn_info->[2];
+    }
+
     my $new = bless {%$self}, ref $self;
 
     $new->schema($new->per_request_schema($ctx));
