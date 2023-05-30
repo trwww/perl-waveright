@@ -5,10 +5,10 @@ package WaveRightDB::GroupsComponent;
 use Log::Contextual qw( :log );
 
 sub grouped_update {
-  my( $self, undef, $person, $data ) = @_;
+  my( $self, $data ) = @_;
 
   $self->result_source->schema->txn_do( \&_txn_grouped_update,
-    $self, $person, $data
+    $self, $data
   );
 
   return 1;
@@ -16,7 +16,7 @@ sub grouped_update {
 
 use Clone ();
 sub _txn_grouped_update {
-  my( $self, $person, $input ) = @_;
+  my( $self, $input ) = @_;
   my $data = Clone::clone( $input );
 
   # never let an id field get to ->update calls

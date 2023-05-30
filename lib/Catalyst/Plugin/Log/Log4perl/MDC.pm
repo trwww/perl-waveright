@@ -19,9 +19,10 @@ mangle_return 'prepare' => sub {
 
   my $config = $c->config->{'Plugin::Log::Log4perl::MDC'} || {};
   my $path   = $c->req->uri->path;
-
+  my $userid = 'ANONYMOUS';
   my $sessionid;
 
+  # mechanism to avoid spamming the session table with records
   foreach my $regex ( keys %$config ) {
     if ( $path =~ m|$regex| ) {
       $sessionid = $config->{$regex};
@@ -29,13 +30,21 @@ mangle_return 'prepare' => sub {
     }
   }
 
-  unless ( $sessionid ) {
+  if ( ! $sessionid ) {
     my $session = $c->session; # force app to load session
     $sessionid  = $c->sessionid;
+
+    my $user = $c->user->obj;
+    $userid  = $user->id;
+
+    # set user in schema - not just MDC any more
+    my $model = sprintf '%sDB', $c->config->{name};
+    $c->model( $model )->schema->current_user( $user );
   }
 
   my $guid = Data::GUID->new->as_string;
 
+  Log::Log4perl::MDC->put(userid    => $userid);
   Log::Log4perl::MDC->put(sessionid => $sessionid);
   Log::Log4perl::MDC->put(guid      => $guid);
 

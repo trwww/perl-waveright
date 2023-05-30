@@ -20,9 +20,6 @@ sub grouped_create {
     die "parent group missing";
   }
 
-  # get create_date to init to current time
-  $group->{create_date} = undef unless $group->{create_date};
-
   $subtable->{group} = $group;
 
   return $self->create( $subtable );
