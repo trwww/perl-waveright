@@ -34,12 +34,14 @@ mangle_return 'prepare' => sub {
     my $session = $c->session; # force app to load session
     $sessionid  = $c->sessionid;
 
-    my $user = $c->user->obj;
-    $userid  = $user->id;
+    if ( my $auth = $c->user ) {
+      my $user = $auth->obj;
+      $userid  = $user->id;
 
-    # set user in schema - not just MDC any more
-    my $model = sprintf '%sDB', $c->config->{name};
-    $c->model( $model )->schema->current_user( $user );
+      # set user in schema - not just MDC any more
+      my $model = sprintf '%sDB', $c->config->{name};
+      $c->model( $model )->schema->current_user( $user );
+    }
   }
 
   my $guid = Data::GUID->new->as_string;
