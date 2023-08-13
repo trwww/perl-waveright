@@ -494,7 +494,16 @@ sub log_in {
   diag explain $response->json if $ENV{DIAG};
 
   my $expect = $self->expected_login_response( $credentials );
-  is_deeply( $response->json, $expect, 'login complete' );
+  my $got    = Clone::clone( $response->json );
+
+  # delete all keys from $got that are not in $expect so we don't have to
+  # maintain gigantic init hashes just to verify login
+  foreach my $got_key ( keys %$got ) {
+    if ( ! grep $got_key eq $_, keys %$expect ) {
+      delete $got->{ $got_key };
+    }
+  }
+  is_deeply( $got, $expect, 'login complete' );
 
   return $response;
 }
