@@ -17,7 +17,9 @@ sub grouped_update {
 use Clone ();
 sub _txn_grouped_update {
   my( $self, $input ) = @_;
-  my $data = Clone::clone( $input );
+
+  # shallow copy so we're not effecting caller's data
+  my $data = { %$input };
 
   # never let an id field get to ->update calls
   if ( exists $data->{id} ) {
