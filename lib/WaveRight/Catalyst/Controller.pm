@@ -145,6 +145,57 @@ sub prepare_subject {
   return $subject;
 }
 
+=head2 file_upload_directory
+
+makes parent directories in UPLOAD_DIRECTORY if they do not exist
+
+=cut
+
+use Data::GUID::URLSafe;
+sub file_upload_directory {
+  my($self, $c, $base_directory) = @_;
+
+  # grab guid for filename hash
+  # http://michaelandrews.typepad.com/the_technical_times/2009/10/creating-a-hashed-directory-structure.html
+  my $b64_guid = Data::GUID->new->as_base64_urlsafe;
+  $b64_guid =~ s|[_\W]+||g;
+  $b64_guid = uc $b64_guid;
+  $b64_guid =~ m|(.)(.)(.)|;
+
+  my $base = join '/', $base_directory, $1, "$1$2", "$1$2$3" ;
+
+  if ( $self->create_directories( $c => $base ) ) {
+    return $base;
+  }
+
+  # error
+}
+
+=head2 create_directories
+
+makes parent directories if they do not exist
+
+=cut
+
+use File::Path;
+sub create_directories {
+  my($self, $c, $dir) = @_;
+
+  File::Path::make_path( $dir => {error => \my $err} );
+
+  for my $diag (@$err) { # empty arrayref when no errors
+    my ($file, $message) = %$diag;
+    if ( $file ) {
+      $c->log->warn("error making [$dir] (make_path says $file): $message");
+    } else {
+      $c->log->warn("error making [$dir]: $message");
+    }
+    return 0;
+  }
+
+  return 1;
+}
+
 =head1 AUTHOR
 
 Catalyst developer
