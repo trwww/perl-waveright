@@ -145,14 +145,14 @@ sub prepare_subject {
   return $subject;
 }
 
-=head2 file_upload_directory
+=head2 file_upload_location
 
 makes parent directories in UPLOAD_DIRECTORY if they do not exist
 
 =cut
 
 use Data::GUID::URLSafe;
-sub file_upload_directory {
+sub file_upload_location {
   my($self, $c, $base_directory) = @_;
 
   # grab guid for filename hash
@@ -165,7 +165,7 @@ sub file_upload_directory {
   my $base = join '/', $base_directory, $1, "$1$2", "$1$2$3" ;
 
   if ( $self->create_directories( $c => $base ) ) {
-    return $base;
+    return join '/', $base, $b64_guid;
   }
 
   # error
