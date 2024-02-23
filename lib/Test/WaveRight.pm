@@ -435,11 +435,10 @@ sub load_mech {
 #  $mech->add_handler( request_send    => sub { diag(shift->dump) });
 #  $mech->add_handler( response_done   => sub { diag(shift->dump) });
 
-#  no reason to unconditionally set request content type, do it in POST
-#  $mech->add_handler( request_prepare => sub {
-#    my($request, $ua, $h) = @_;
-#    $request->content_type('application/json');
-#  });
+  $mech->add_handler( request_prepare => sub {
+    my($request, $ua, $h) = @_;
+    $request->content_type('application/json');
+  });
 
   return $mech;
 }
@@ -599,16 +598,7 @@ sub post {
 
   my $callback = sub {
     my($www, $endpoint, $data) = @_;
-
-    my $post_data = $data;
-    if ( ref $data ne 'ARRAY' ) {
-      $post_data = [
-        'Content-Type' => 'application/json; charset=UTF-8',
-        Content        => $data && encode_json $data
-      ];
-    }
-
-    $www->post( $endpoint => @$post_data )
+    $www->post( $endpoint => Content => $data && encode_json $data )
   };
 
   my $response = Test::MockDateTime::on(
