@@ -30,8 +30,8 @@ sub setup : Test(setup => +1) {
 
   isa_ok(
     my $group = $self->{group} = $c->model($class)->create({
-      name        => 'foo',
-      create_date => undef,
+      name  => 'foo',
+      group => 1,
     }),
     $name => '$group'
   );
@@ -49,8 +49,7 @@ sub add_new_child_to_parent : Test(1) {
 
   isa_ok(
     my $child = $self->{child} = $group->add_to_groups({
-      name        => 'child group',
-      create_date => undef,
+      name => 'child group',
     }),
     $self->{app}{test}{name} => '$child'
   ); 
@@ -87,8 +86,8 @@ sub add_parent_to_child : Test(3) {
 
   isa_ok(
     my $child = $self->{child} = $c->model($self->{app}{test}{class})->create({
-      name        => 'child group',
-      create_date => undef,
+      name  => 'child group',
+      group => 1,
     }),
     $self->{app}{test}{name} => '$child'
   );

@@ -194,10 +194,13 @@ sub login : POST Path('login') Args(0) Consumes(JSON) {
     }
 
     my $api = sprintf '%s::Controller::API', $c->config->{name};
+
     $api->init( $c );
+
     $json = $c->stash->{json}; # get new json hash that the visit overwrote
 
     $json->{ok}      = JSON->true;
+
     $json->{toaster} = {
       type            => 'success',
       title           => 'Log In Success',

@@ -29,17 +29,16 @@ sub setup : Test(setup => +4) {
 
   isa_ok(
     my $person = $self->{person} = $c->model($class . 'Persons')->create({
-      email       => 'foo@bar.com',
-      pass        => 'foobar',
-      create_date => undef,
+      email => 'foo@bar.com',
+      pass  => 'foobar',
     }),
     $name . 'Persons' => '$person'
   );
 
   isa_ok(
     my $group = $self->{group} = $c->model($class . 'Groups')->create({
-      name        => 'foo',
-      create_date => undef,
+      name  => 'foo',
+      group => 1,
     }),
     $name . 'Groups' => '$group'
   );  
@@ -73,9 +72,8 @@ sub members : Test(3) {
 
   isa_ok(
     my $member = $self->{member} = $c->model($class . 'Members')->create({
-      person       => $person,
-      group        => $group,
-      create_date  => undef,
+      person => $person,
+      group  => $group,
     }),
     $name . 'Members' => '$member'
   );
@@ -102,9 +100,7 @@ sub add_to_groups : Test(1) {
   my $group = $self->{group};
 
   isa_ok(
-    my $member = $self->{member} = $person->add_to_groups($group, {
-      create_date  => undef,
-    }),
+    my $member = $self->{member} = $person->add_to_groups($group),
     $self->{app}{model}{name} . 'Members' => '$member'
   ); 
 }
@@ -123,9 +119,7 @@ sub add_to_persons : Test(1) {
   my $group = $self->{group};
 
   isa_ok(
-    my $member = $self->{member} = $group->add_to_persons($person, {
-      create_date  => undef,
-    }),
+    my $member = $self->{member} = $group->add_to_persons($person),
     $self->{app}{model}{name} . 'Members' => '$member'
   ); 
 }
@@ -159,9 +153,7 @@ sub isMember : Test(10) {
   ok(! $person->isMember($c, $group), 'test user is not in manager group yet');
 
   isa_ok(
-    my $member = $self->{member} = $managers->add_to_persons($person, {
-      create_date => undef,
-    }),
+    my $member = $self->{member} = $managers->add_to_persons($person),
     $name . 'Members' => '$member'
   ); 
 
@@ -220,9 +212,7 @@ sub isDescendant : Test(10) {
   );
 
   isa_ok(
-    my $member = $self->{member} = $group->add_to_persons($person, {
-      create_date  => undef,
-    }),
+    my $member = $self->{member} = $group->add_to_persons($person),
     $name . 'Members' => '$member'
   ); 
 
