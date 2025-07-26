@@ -9,31 +9,6 @@ sub json {
 }
 
 package WWW::Mechanize;
-# make a delete method so mechanize can DELETE
-# cribbed from WWW/Mechanize.pm:put
-
-sub delete {
-    my $self = shift;
-    my $uri = shift;
-
-    $uri = $uri->url if ref($uri) eq 'WWW::Mechanize::Link';
-
-    $uri = $self->base
-            ? URI->new_abs( $uri, $self->base )
-            : URI->new( $uri );
-
-    # It appears we are returning a super-class method,
-    # but it in turn calls the request() method here in Mechanize
-    return $self->_SUPER_delete( $uri->as_string, @_ );
-}
-
-
-sub _SUPER_delete {
-    require HTTP::Request::Common;
-    my($self, @parameters) = @_;
-    my @suff = $self->_process_colonic_headers(\@parameters,1);
-    return $self->request( HTTP::Request::Common::DELETE( @parameters ), @suff );
-}
 
 sub patch {
     my $self = shift;
